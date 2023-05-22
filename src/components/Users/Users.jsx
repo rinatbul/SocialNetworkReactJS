@@ -5,29 +5,43 @@ import avatar from '../../assets/avatar.png'
 import s from './users.module.css'
 
 export class Users extends React.Component {
-
     componentDidMount() {
         axios.get(
             `https://social-network.samuraijs.com/api/1.0/users?page=${this.props.currentPage}&count=${this.props.pageSize}`)
             .then(res => {
                 this.props.setUsers(res.data.items)
+                this.props.setTotalUsersCount(res.data.totalCount)
+            })
+    }
+
+    onPageChanged = (pageNumber) => {
+        this.props.setCurrentPage(pageNumber)
+        axios.get(
+            `https://social-network.samuraijs.com/api/1.0/users?page=${pageNumber}&count=${this.props.pageSize}`)
+            .then(res => {
+                this.props.setUsers(res.data.items)
+
             })
     }
 
     render() {
-        let pagesCount = Math.ceil(this.props.totalUsersCount/this.props.pageSize);
+        let pagesCount = Math.ceil(this.props.totalUsersCount / this.props.pageSize);
         let pages = [];
 
-        for (let i=1;i<=pagesCount;i++){
-            pages.push(i);
+        for (let i = 1; i <= pagesCount; i++) {
+            if (pages.length<15){
+                pages.push(i);
+            }
         }
         return (
             <div>
                 <div>
-                    {pages.map(page=>{
+                    {pages.map(page => {
                         return <span
                             className={this.props.currentPage === page && s.selectedPage}
-                        onClick={()=>{this.props.setCurrentPage(page)}}>{page}</span>
+                            onClick={(e) => {
+                                this.onPageChanged(page);
+                            }}>{page}</span>
                     })}
                 </div>
                 {
